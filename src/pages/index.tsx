@@ -99,7 +99,7 @@ export default function HomePage() {
     console.log('Поиск...')
     console.log(data)
 
-    request('/api/Recuperator/GetAllVariantsPost/variants/', { data: data, method: 'POST', headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`} }).then((result: any[]) => {
+    request('/api/Recuperator/GetAllVariantsPost/variants/', { data: data, method: 'POST'}).then((result: any[]) => {
       setDataSource(result)
     });
   }

@@ -1,22 +1,31 @@
-/* import { RequestConfig } from "@umijs/max";
+import { RequestConfig } from "@umijs/max";
 
 export const request: RequestConfig = {
-    timeout: 30000,
-    errorConfig: {
-        errorHandler: () => { },
-        errorThrower: () => { },
-    },
-    requestInterceptors: [
-        (config: any) => {
-            const token = localStorage.getItem('token');
-            const authHeaders =
-                token
-                    ? { Authorization: 'Bearer' + token }
-                    : {};
-            config.headers = { ...config.headers, ...authHeaders, };
+  timeout: 30000,
+  errorConfig: {
+    errorHandler: () => {},
+    errorThrower: () => {},
+  },
+  requestInterceptors: [
+    (url, options) => {
+      // Получаем токен из localStorage
+      const token = localStorage.getItem('token');
+      
+      // Формируем заголовки
+      const headers = {
+        ...options.headers,
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      };
 
-            return config;
-        },
-    ],
-    responseInterceptors: [],
-}; */
+      // Важно: возвращаем новый объект конфигурации
+      return {
+        url,
+        options: {
+          ...options,
+          headers
+        }
+      };
+    }
+  ],
+  responseInterceptors: []
+};
