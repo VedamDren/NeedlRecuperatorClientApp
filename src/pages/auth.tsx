@@ -1,16 +1,17 @@
-import { request } from "@umijs/max";
+import { request, useModel } from "@umijs/max";
 import { Button, Form, Input, message, Modal, Popconfirm, Radio, Result, Select, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 
-
 export default function HomePage() {
+    const { setInitialState } = useModel('@@initialState');
 
     const loginHandler = (data: any) => {
-        request('/api/User/Login', { method: 'POST', data}).then((result: any) => {
+        request('/api/Auth/Login', { method: 'POST', data}).then((result: any) => {
             if(result.status != 0) {
                 message.error("Вход не выполнен")
             }
 
+            setInitialState({login: result.login})
             localStorage.setItem('token', result.token)
             message.success("Вход успешно выполнен")
         })

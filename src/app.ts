@@ -1,5 +1,12 @@
 import { RequestConfig } from "@umijs/max";
 
+export async function getInitialState() {
+    return{
+        name: 'test'
+
+    };
+}
+
 export const request: RequestConfig = {
   timeout: 30000,
   errorConfig: {
@@ -17,7 +24,7 @@ export const request: RequestConfig = {
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       };
 
-      // Важно: возвращаем новый объект конфигурации
+      //Возвращаем новый объект конфигурации
       return {
         url,
         options: {

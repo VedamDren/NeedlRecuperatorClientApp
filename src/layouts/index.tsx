@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'umi';
+import { Link, Outlet, useModel } from 'umi';
 import { Layout, Menu, theme } from 'antd';
 
 import './index.less';
@@ -6,8 +6,14 @@ import './index.less';
 const { Header, Content, Footer } = Layout;
 
 export default function () {
+  const { initialState, setInitialState } = useModel('@@initialState')
 
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
+
+  const onExit = () => {
+    localStorage.removeItem('token')
+    setInitialState({ login: undefined })
+  }
 
   const menuItems = [
     {
@@ -24,7 +30,7 @@ export default function () {
     },
     {
       key: 'auth',
-      label: <Link to="/auth">Войти</Link>,
+      label: initialState?.login ? <a onClick={onExit}>Выход</a> : <Link to="/auth">Войти</Link>,
     }
 
   ]

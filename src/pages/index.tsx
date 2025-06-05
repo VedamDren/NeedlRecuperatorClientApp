@@ -1,6 +1,6 @@
 import { NeedlRecuperatorInputModel } from '@/models/inputModel';
 import { NeedlRecuperatorResultModel } from '@/models/resultModel';
-import { request } from '@umijs/max';
+import { request, useModel } from '@umijs/max';
 import { Button, Form, Input, message, Modal, Popconfirm, Radio, Result, Select, Space, Table, TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { __values } from 'tslib';
@@ -9,6 +9,7 @@ import { history } from 'umi';
 
 
 export default function HomePage() {
+  const { initialState } = useModel('@@initialState')
   /*curl -X 'POST' \
     'http://localhost:5210/api/Recuperator/Calculate/calculate' \
     -H 'accept: ' \
@@ -51,11 +52,6 @@ export default function HomePage() {
   useEffect(() => {
 
     updateData({});
-
-    request('/api/User/GetAll', { method: 'GET' }).then((result: any[]) => {
-      const options = result.map((item: any) => ({ value: item.id, label: item.name }));
-      setCreatorOptions(options)
-    });
 
     //localStorage.setItem('super_key', 'super_value')
     sessionStorage.setItem('super_key', 'super_value')
@@ -137,6 +133,7 @@ export default function HomePage() {
 
   return (
     <div>
+      {initialState?.login ? `Вы вошли как ${initialState?.login}` : ""}
       <Form
         layout='inline'
         onFinish={updateData}
