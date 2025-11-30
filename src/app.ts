@@ -1,9 +1,9 @@
-import { RequestConfig } from "@umijs/max";
+import { RequestConfig, request as req } from "@umijs/max";
 
 export async function getInitialState() {
+    const user = await req('/api/User/Info')
     return{
-        name: 'test'
-
+        login: user?.login
     };
 }
 
