@@ -2,9 +2,7 @@ export default function(props: any) {
 
   
     const d = [
-      { firstname: "Иван", lastname: "Иванов", midName: "Иванович", age: 20 },
-      { firstname: "Анатолий", lastname: "Анатольев", midName: "Анатольевич", age: 21 },
-      { firstname: "Алексей", lastname: "Алексеев", midName: "Иванович", age: 22 }
+      { firstname: "Максим", lastname: "Литвинов", midName: "Алексеевич", age: 33 },
     ]
   
     return (

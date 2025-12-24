@@ -1,39 +1,70 @@
-import { Link, Outlet, useModel } from 'umi';
-import { Layout, Menu, theme } from 'antd';
-
+import { Link, Outlet, useModel, history } from 'umi';
+import { Layout, Menu, theme, message } from 'antd';
 import './index.less';
 
 const { Header, Content, Footer } = Layout;
 
 export default function () {
-  const { initialState, setInitialState } = useModel('@@initialState')
+  const { initialState, setInitialState } = useModel('@@initialState');
 
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
 
+  // Функция выхода из системы
   const onExit = () => {
-    localStorage.removeItem('token')
-    setInitialState({ login: undefined })
-  }
+    try {
+      // Очищаем данные пользователя из localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('login');
+      
+      // Сбрасываем состояние приложения
+      setInitialState({ login: undefined, userId: undefined } as any);
+      
+      // Показываем сообщение об успешном выходе
+      message.success('Вы успешно вышли из системы');
+      
+      // Перенаправляем на главную страницу
+      setTimeout(() => {
+        history.push('/');
+      }, 500);
+      
+    } catch (error) {
+      console.error('Ошибка при выходе из системы:', error);
+      message.error('Произошла ошибка при выходе из системы');
+    }
+  };
 
+  // Элементы меню навигации
   const menuItems = [
     {
       key: 'home',
-      label: <Link to="/">Home</Link>,
-    },
-    {
-      key: 'docs',
-      label: <Link to="/docs">Docs</Link>,
+      label: <Link to="/">Главная</Link>,
     },
     {
       key: 'input',
-      label: <Link to="/input">Рассчет</Link>,
+      label: <Link to="/input">Расчет</Link>,
+    },
+    {
+      key: 'variants',
+      label: <Link to="/variants">Мои варианты</Link>, // Исправлено: ведет на страницу вариантов
     },
     {
       key: 'auth',
-      label: initialState?.login ? <a onClick={onExit}>Выход</a> : <Link to="/auth">Войти</Link>,
+      // Если пользователь авторизован - показываем кнопку "Выход", иначе - "Войти"
+      label: initialState?.login ? (
+        <a 
+          onClick={onExit}
+          style={{ color: 'inherit' }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#1890ff'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'inherit'}
+        >
+          Выход ({initialState.login})
+        </a>
+      ) : (
+        <Link to="/auth">Войти</Link>
+      ),
     }
-
-  ]
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -42,7 +73,7 @@ export default function () {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['home']}
           items={menuItems}
           style={{ flex: 1, minWidth: 0 }}
         />
@@ -56,13 +87,13 @@ export default function () {
             borderRadius: borderRadiusLG,
           }}
         >
+          {/* Outlet для отображения дочерних страниц */}
           <Outlet />
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>
-        Ant Design ©{new Date().getFullYear()} Created by Ant UED
+        УрФУ ©{new Date().getFullYear()} Теплотехнический расчет игольчатого рекуператора
       </Footer>
     </Layout>
-
   );
 }

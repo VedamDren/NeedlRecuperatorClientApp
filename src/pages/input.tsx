@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { history } from 'umi';
-import { Button, Form, InputNumber, Card, Row, Col, message } from 'antd';
+import { Button, Form, InputNumber, Card, Row, Col, message, Modal, Input } from 'antd';
 import { calculateRecuperator } from '@/services/api';
 import { NeedlRecuperatorInputModel, defaultInputValues } from '@/models/inputModel';
 import { NeedlRecuperatorResultModel } from '@/models/resultModel';
+import { request, useModel } from '@umijs/max';
 
 const InputPage: React.FC = () => {
   const [form] = Form.useForm<NeedlRecuperatorInputModel>();
   const [loading, setLoading] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const { initialState } = useModel('@@initialState');
 
   const onFinish = async (values: NeedlRecuperatorInputModel) => {
     setLoading(true);
@@ -30,8 +33,57 @@ const InputPage: React.FC = () => {
     form.resetFields();
   };
 
+  // Функция для открытия модального окна сохранения
+  const handleSaveVariant = () => {
+    // Проверяем, что форма заполнена
+    form.validateFields()
+      .then(values => {
+        setIsSaveModalOpen(true);
+      })
+      .catch(error => {
+        message.error('Заполните все обязательные поля перед сохранением');
+      });
+  };
+
+  // Функция для сохранения варианта
+  const onSaveVariant = (saveData: any) => {
+    if (!initialState?.login) {
+      message.error('Необходимо войти в систему');
+      return;
+    }
+
+    // Получаем текущие значения из формы
+    const formValues = form.getFieldsValue();
+    
+    // Объединяем с названием из модального окна
+    const variantData = {
+      ...formValues,
+      name: saveData.name
+    };
+
+    console.log('Сохранение варианта:', variantData);
+    
+    request('/api/Variant/SaveVariant', { 
+      data: variantData, 
+      method: 'PUT' 
+    }).then((result: any) => {
+      setIsSaveModalOpen(false);
+      message.success('Новый вариант добавлен');
+    }).catch((error: any) => {
+      console.error('Ошибка при сохранении:', error);
+      message.error(error.message || 'Ошибка при сохранении варианта');
+    });
+  };
+
   return (
     <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '20px', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+        {initialState?.login 
+          ? `Вы вошли как: ${initialState.login}` 
+          : 'Необходимо войти в систему для сохранения вариантов'
+        }
+      </div>
+
       <Card title="Параметры рекуператора" bordered={false}>
         <Form
           form={form}
@@ -97,6 +149,9 @@ const InputPage: React.FC = () => {
                 <InputNumber min={0} max={200} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 label="Потери тепла рекуператора в окружающее пространство, %"
@@ -124,13 +179,16 @@ const InputPage: React.FC = () => {
                 <InputNumber min={880} max={1640} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 label="Сечение для прохода воздуха, м2"
                 name="sechenie_vozd_pipe"
                 rules={[{ required: true, message: 'Введите значение' }]}
               >
-                <InputNumber value={0.008} style={{ width: '100%' }} />
+                <InputNumber step="0.001" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -151,6 +209,9 @@ const InputPage: React.FC = () => {
                 <InputNumber min={0.25} max={0.5} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 label="Количество труб по пути воздуха, шт."
@@ -178,6 +239,9 @@ const InputPage: React.FC = () => {
                 <InputNumber min={1} max={10} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 label="Эмпирический коэффициент для расчета теплоотдачи, B"
@@ -198,9 +262,15 @@ const InputPage: React.FC = () => {
             </Col>
           </Row>
 
-
           <Row gutter={16}>
             <Col span={24} style={{ textAlign: 'right' }}>
+              <Button 
+                style={{ marginRight: 8 }} 
+                onClick={handleSaveVariant}
+                disabled={!initialState?.login}
+              >
+                Сохранить вариант
+              </Button>
               <Button style={{ marginRight: 8 }} onClick={resetForm}>
                 Сбросить
               </Button>
@@ -211,6 +281,34 @@ const InputPage: React.FC = () => {
           </Row>
         </Form>
       </Card>
+
+      {/* Модальное окно для сохранения варианта */}
+      <Modal 
+        title="Сохранение варианта" 
+        open={isSaveModalOpen}
+        onCancel={() => setIsSaveModalOpen(false)}
+        footer={null}
+        width={400}
+      >
+        <Form
+          layout="vertical"
+          onFinish={onSaveVariant}
+        >
+          <Form.Item
+            name="name"
+            label="Название варианта"
+            rules={[{ required: true, message: 'Введите название варианта' }]}
+          >
+            <Input placeholder="Введите название варианта" />
+          </Form.Item>
+          
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Сохранить
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

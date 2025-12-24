@@ -12,8 +12,8 @@ export default defineConfig({
   },
   routes: [
     { path: "/", component: "index" },
-    { path: "/docs", component: "docs" },
     { path: "/input", component: "input" },
+    { path: "/variants", component: "variants" },
     { path: "/result", component: "result" },
     { path: "/auth", component: "auth" },
   ],
