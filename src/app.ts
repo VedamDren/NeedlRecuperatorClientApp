@@ -1,5 +1,6 @@
 import { RequestConfig, request as req } from "@umijs/max";
 
+<<<<<<< HEAD
 export interface InitialState {
   login?: string;
   userId?: number;
@@ -11,6 +12,12 @@ export async function getInitialState(): Promise<InitialState> {
     return {
       login: user?.login,
       userId: user?.id // Предполагая, что API возвращает id пользователя
+=======
+export async function getInitialState() {
+    const user = await req('/api/User/Info')
+    return{
+        login: user?.login
+>>>>>>> 6572e7df46166d35f06b2f06fb95d50bc2e62a97
     };
   } catch (error) {
     // Если запрос не удался, пробуем получить данные из localStorage
